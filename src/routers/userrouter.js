@@ -1,8 +1,8 @@
 const express = require("express");
-const userController = require("../controllers/userController");
+const { getusers } = require("../controllers/userController"); // ✅ Correct import
 
 const router = express.Router();
 
-router.get("/", getusers);
+router.get("/", getusers); // ✅ Function name matches the import
 
 module.exports = router;
