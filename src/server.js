@@ -9,7 +9,7 @@ app.use(express.json()); // Allow JSON requests
 app.use(cors({ origin: "http://localhost:19006", credentials: true })); // Adjust for your frontend
 
 // Import Routes
-const userRoutes = require("../routes/userRoutes");
+const userRoutes = require("./routers/userrouter");
 const tripRoutes = require("../routes/tripRoutes");
 
 // Use Routes
