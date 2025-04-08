@@ -55,7 +55,8 @@ const signup = async (req, res) => {
 
     // Return success message
     res.status(201).json({
-      message: "User registered successfully",
+      message:
+        "User registered successfully. Please check your email to verify your account.",
       user: { id: user.id, email: user.email, name },
     });
   } catch (err) {
