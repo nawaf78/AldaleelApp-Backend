@@ -1,8 +1,9 @@
+// /profile route
 const express = require("express");
-const { getusers } = require("../controllers/userController");
-
 const router = express.Router();
+const { getProfile } = require("../controllers/userController");
+const authenticate = require("../middleware/authMiddleware");
 
-router.get("/", getusers); // ✅ Function name matches the import
+router.get("/profile", authenticate, getProfile);
 
 module.exports = router;

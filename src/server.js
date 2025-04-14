@@ -13,20 +13,18 @@ app.use(cors({ origin: "http://localhost:19006", credentials: true })); // Adjus
 const authRoutes = require(path.join(__dirname, "routers", "authRouter"));
 const userRoutes = require(path.join(__dirname, "routers", "userrouter"));
 const tripRoutes = require(path.join(__dirname, "routers", "tripRoutes"));
-const testRoute = require(path.join(__dirname, "routers", "testroute"));
 
 // Use Routes
 app.use("/api/auth", authRoutes); // Authentication routes (Sign-up, Sign-in)
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
-app.use("/", testRoute);
 
 // Root Route
 app.get("/", (req, res) => {
   res.json({ message: "🚀 Backend is working!" });
 });
 
-// Error Handling Middleware (optional)
+// Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
   res.status(500).json({ error: "Internal Server Error" });
@@ -45,7 +43,7 @@ const testSupabaseConnection = async () => {
     if (error) {
       console.error("❌ Supabase connection error:", error.message);
     } else {
-      console.log("✅ Supabase connection successful:", data);
+      console.log("✅ Supabase connection successful:");
     }
   } catch (err) {
     console.error("❌ Unexpected Supabase error:", err);
