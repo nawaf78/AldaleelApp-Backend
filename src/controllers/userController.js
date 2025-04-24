@@ -1,5 +1,6 @@
 const { supabase } = require("../config/supabaseClient");
 
+// --- Get Profile ---
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -40,4 +41,38 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { getProfile };
+// --- Update Profile ---
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, avatarUrl } = req.body;
+
+    console.log("Updating profile for User ID:", userId);
+    console.log("Data received:", req.body);
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({ name, email, avatarUrl })
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error updating profile:", error.message);
+      return res.status(500).json({ error: "Failed to update profile" });
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatarUrl,
+      },
+    });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+module.exports = { getProfile, updateProfile };
