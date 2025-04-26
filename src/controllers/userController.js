@@ -1,7 +1,7 @@
 const { supabase } = require("../config/supabaseClient");
 
 // --- Get Profile ---
-const getProfile = async (req, res) => {
+async function getProfile(req, res) {
   try {
     const userId = req.user.id;
     console.log("User ID from token:", userId);
@@ -12,10 +12,8 @@ const getProfile = async (req, res) => {
       .eq("id", userId)
       .maybeSingle();
 
-    console.log("Fetched userData:", userData);
-    console.log("User error:", userError?.message);
-
     if (userError || !userData) {
+      console.error("Fetch profile error:", userError?.message);
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -28,7 +26,7 @@ const getProfile = async (req, res) => {
       console.error("Trip count error:", tripError.message);
     }
 
-    res.json({
+    return res.json({
       name: userData.name,
       email: userData.email,
       avatarUrl: userData.avatarUrl || null,
@@ -36,23 +34,23 @@ const getProfile = async (req, res) => {
       reviews: 0,
     });
   } catch (err) {
-    console.error("Error fetching profile:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error in getProfile:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
-};
+}
 
 // --- Update Profile ---
-const updateProfile = async (req, res) => {
+async function updateProfile(req, res) {
   try {
     const userId = req.user.id;
-    const { name, email, avatarUrl } = req.body;
+    const { name, avatarUrl } = req.body;
 
-    console.log("Updating profile for User ID:", userId);
-    console.log("Data received:", req.body);
+    console.log("Updating profile for User ID:", userId, req.body);
 
+    // perform the update
     const { data, error } = await supabase
       .from("users")
-      .update({ name, email, avatarUrl })
+      .update({ name, avatarUrl })
       .eq("id", userId)
       .single();
 
@@ -61,18 +59,20 @@ const updateProfile = async (req, res) => {
       return res.status(500).json({ error: "Failed to update profile" });
     }
 
-    res.json({
+    // Supabase sometimes returns data=null with no error; fall back to the input
+    const updated = {
+      name: data?.name ?? name,
+      avatarUrl: data?.avatarUrl ?? avatarUrl,
+    };
+
+    return res.json({
       message: "Profile updated successfully",
-      user: {
-        name: data.name,
-        email: data.email,
-        avatarUrl: data.avatarUrl,
-      },
+      user: updated,
     });
   } catch (err) {
-    console.error("Error updating profile:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error in updateProfile:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
-};
+}
 
 module.exports = { getProfile, updateProfile };
