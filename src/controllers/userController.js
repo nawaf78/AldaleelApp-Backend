@@ -1,19 +1,18 @@
 const { supabase } = require("../config/supabaseClient");
 
 // --- Get Profile ---
-async function getProfile(req, res) {
+const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log("User ID from token:", userId);
 
+    // include created_at
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("name, email, avatarUrl")
+      .select("name, email, avatarUrl, created_at")
       .eq("id", userId)
       .maybeSingle();
 
     if (userError || !userData) {
-      console.error("Fetch profile error:", userError?.message);
       return res.status(404).json({ error: "User not found" });
     }
 
@@ -22,22 +21,21 @@ async function getProfile(req, res) {
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId);
 
-    if (tripError) {
-      console.error("Trip count error:", tripError.message);
-    }
+    if (tripError) console.error("Trip count error:", tripError.message);
 
-    return res.json({
+    res.json({
       name: userData.name,
       email: userData.email,
       avatarUrl: userData.avatarUrl || null,
+      joinedAt: userData.created_at, // ISO timestamp
       completedTrips: completedTrips || 0,
       reviews: 0,
     });
   } catch (err) {
-    console.error("Error in getProfile:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 // --- Update Profile ---
 async function updateProfile(req, res) {
