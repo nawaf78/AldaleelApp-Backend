@@ -2,12 +2,44 @@ require("dotenv").config(); // Load environment variables
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const bodyParser = require("body-parser");
 
 const app = express();
 
-// Middleware
-app.use(express.json()); // Allow JSON requests
-app.use(cors({ origin: "http://localhost:19006", credentials: true })); // Adjust for your frontend
+// CORS middleware
+app.use(cors());
+
+// Body parser middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`, {
+    body: req.body,
+    query: req.query,
+  });
+  next();
+});
+
+// Error Handling Middleware for JSON payload
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid JSON payload",
+      details: err.message,
+    });
+  }
+
+  res.status(500).json({
+    status: "error",
+    message: "Internal server error",
+    details: err.message,
+  });
+});
 
 // Import Routes
 const authRoutes = require(path.join(__dirname, "routers", "authRouter"));
