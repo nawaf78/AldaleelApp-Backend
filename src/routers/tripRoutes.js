@@ -4,37 +4,31 @@ const { supabase } = require("../config/supabaseClient");
 
 router.get("/", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
     const userId = req.query.user_id;
+    if (!userId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing user_id parameter",
+      });
+    }
 
-    const {
-      data: trips,
-      error,
-      count,
-    } = await supabase
+    const { data: trips, error } = await supabase
       .from("trips")
-      .select("*", { count: "exact" })
+      .select("*")
       .eq("user_id", userId)
-      .range((page - 1) * limit, page * limit - 1)
-      .order("created_at", { ascending: false });
+      .order(req.query.sort === "destination" ? "destination" : "created_at", {
+        ascending: false,
+      });
 
     if (error) throw error;
 
-    res.json({
+    return res.status(200).json({
       status: "success",
-      data: {
-        trips: trips || [],
-      },
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(count / limit),
-        totalItems: count,
-      },
+      data: trips,
     });
   } catch (error) {
-    console.error("Failed to fetch trips:", error);
-    res.status(500).json({
+    console.error("[tripRoutes] Failed to fetch trips:", error);
+    return res.status(500).json({
       status: "error",
       message: "Failed to fetch trips",
       error: error.message,
