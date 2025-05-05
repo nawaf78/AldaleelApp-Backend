@@ -6,6 +6,9 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+// Port configuration
+const PORT = process.env.PORT || 5000;
+
 // CORS middleware
 app.use(cors());
 
@@ -47,7 +50,7 @@ const userRoutes = require(path.join(__dirname, "routers", "userrouter"));
 const tripRoutes = require(path.join(__dirname, "routers", "tripRoutes"));
 
 // Use Routes
-app.use("/api/auth", authRoutes); // Authentication routes (Sign-up, Sign-in)
+app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
 
@@ -62,9 +65,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Port Configuration
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🔥 Server running on port ${PORT}`));
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 const { supabase } = require("./config/supabaseClient"); // Correct import
 

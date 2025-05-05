@@ -6,6 +6,7 @@ router.get("/", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const userId = req.query.user_id;
 
     const {
       data: trips,
@@ -14,6 +15,7 @@ router.get("/", async (req, res) => {
     } = await supabase
       .from("trips")
       .select("*", { count: "exact" })
+      .eq("user_id", userId)
       .range((page - 1) * limit, page * limit - 1)
       .order("created_at", { ascending: false });
 
@@ -50,7 +52,7 @@ router.post("/", async (req, res) => {
     }
 
     const tripData = {
-      user_id: "temp_user_id",
+      user_id: req.body.user_id,
       destination: req.body.destination,
       destination_country: req.body.destinationCountry,
       latitude: req.body.latitude,
