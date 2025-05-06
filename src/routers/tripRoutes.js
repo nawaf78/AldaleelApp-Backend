@@ -40,7 +40,6 @@ router.post("/", async (req, res) => {
   try {
     console.log("[tripRoutes] Received trip creation request:", req.body);
 
-    // Validate the itinerary data from MCP
     if (!req.body.itinerary) {
       throw new Error("Missing itinerary data");
     }

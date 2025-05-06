@@ -1,11 +1,9 @@
 const { supabase } = require("../config/supabaseClient");
 
-// --- Get Profile ---
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // include created_at
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("name, email, avatarUrl, created_at")
@@ -27,7 +25,7 @@ const getProfile = async (req, res) => {
       name: userData.name,
       email: userData.email,
       avatarUrl: userData.avatarUrl || null,
-      joinedAt: userData.created_at, // ISO timestamp
+      joinedAt: userData.created_at, 
       completedTrips: completedTrips || 0,
       reviews: 0,
     });
@@ -37,7 +35,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-// --- Update Profile ---
 async function updateProfile(req, res) {
   try {
     const userId = req.user.id;
@@ -45,7 +42,6 @@ async function updateProfile(req, res) {
 
     console.log("Updating profile for User ID:", userId, req.body);
 
-    // perform the update
     const { data, error } = await supabase
       .from("users")
       .update({ name, avatarUrl })
@@ -57,7 +53,6 @@ async function updateProfile(req, res) {
       return res.status(500).json({ error: "Failed to update profile" });
     }
 
-    // Supabase sometimes returns data=null with no error; fall back to the input
     const updated = {
       name: data?.name ?? name,
       avatarUrl: data?.avatarUrl ?? avatarUrl,

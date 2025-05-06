@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load environment variables
+require("dotenv").config(); 
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -6,17 +6,13 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-// Port configuration
 const PORT = process.env.PORT || 5000;
 
-// CORS middleware
 app.use(cors());
 
-// Body parser middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.path}`, {
     body: req.body,
@@ -25,7 +21,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Error Handling Middleware for JSON payload
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
 
@@ -44,35 +39,29 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Import Routes
 const authRoutes = require(path.join(__dirname, "routers", "authRouter"));
 const userRoutes = require(path.join(__dirname, "routers", "userrouter"));
 const tripRoutes = require(path.join(__dirname, "routers", "tripRoutes"));
 
-// Use Routes
 app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
 
-// Root Route
 app.get("/", (req, res) => {
   res.json({ message: "🚀 Backend is working!" });
 });
 
-// Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-const { supabase } = require("./config/supabaseClient"); // Correct import
-
-// Test Supabase Connection
+const { supabase } = require("./config/supabaseClient"); 
+  
 const testSupabaseConnection = async () => {
   try {
     const { data, error } = await supabase.from("users").select("*");
