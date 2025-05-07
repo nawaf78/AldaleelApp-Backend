@@ -128,4 +128,46 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing trip ID parameter",
+      });
+    }
+
+    console.log(`[tripRoutes] Attempting to delete trip with id: ${id}`);
+
+    const { error } = await supabase.from("trips").delete().eq("id", id);
+
+    if (error) {
+      console.error("[tripRoutes] Supabase delete error:", error);
+      // Check for specific Supabase errors, e.g., if the item doesn't exist (PGRST204 can be tricky with delete)
+      // For now, a general 500, but you might want to refine this.
+      return res.status(500).json({
+        status: "error",
+        message: "Database error during deletion",
+        details: error.message,
+      });
+    }
+
+    // According to Supabase docs, delete doesn't return the deleted row by default and error is null on success.
+    // A 204 No Content is often appropriate for successful DELETE operations.
+    // Or a 200 with a success message.
+    // The frontend apiClient is set to handle 204 as success.
+    console.log(`[tripRoutes] Trip with id: ${id} deleted successfully`);
+    return res.status(204).send(); 
+
+  } catch (error) {
+    console.error("[tripRoutes] Failed to delete trip:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to delete trip",
+      details: error.message,
+    });
+  }
+});
+
 module.exports = router;
